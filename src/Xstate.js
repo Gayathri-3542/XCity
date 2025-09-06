@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
 import styles from "./Xstate";
 
 const Xstate = () => {
@@ -10,48 +9,43 @@ const Xstate = () => {
   const [selectedState, setSelectedState] = useState("");
   const [selectedCity, setSelectedCity] = useState("");
 
+  // Fetch countries
   useEffect(() => {
-    axios
-      .get("https://crio-location-selector.onrender.com/countries")
-      .then((response) => {
-        setCountries(response.data);
-      })
-      .catch((error) => {
-        console.error("Error fetching countries:", error);
-      });
+    fetch("https://crio-location-selector.onrender.com/countries")
+      .then((res) => res.json())
+      .then((data) => setCountries(data))
+      .catch((error) => console.error("Error fetching countries:", error));
   }, []);
 
+  // Fetch states when country is selected
   useEffect(() => {
     if (selectedCountry) {
-      axios
-        .get(
-          `https://crio-location-selector.onrender.com/country=${selectedCountry}/states`
-        )
-        .then((response) => {
-          setStates(response.data);
+      fetch(
+        `https://crio-location-selector.onrender.com/country=${selectedCountry}/states`
+      )
+        .then((res) => res.json())
+        .then((data) => {
+          setStates(data);
           setSelectedState(""); // Reset state selection
           setCities([]); // Clear cities
           setSelectedCity(""); // Reset city selection
         })
-        .catch((error) => {
-          console.error("Error fetching states:", error);
-        });
+        .catch((error) => console.error("Error fetching states:", error));
     }
   }, [selectedCountry]);
 
+  // Fetch cities when state is selected
   useEffect(() => {
     if (selectedCountry && selectedState) {
-      axios
-        .get(
-          `https://crio-location-selector.onrender.com/country=${selectedCountry}/state=${selectedState}/cities`
-        )
-        .then((response) => {
-          setCities(response.data);
+      fetch(
+        `https://crio-location-selector.onrender.com/country=${selectedCountry}/state=${selectedState}/cities`
+      )
+        .then((res) => res.json())
+        .then((data) => {
+          setCities(data);
           setSelectedCity(""); // Reset city selection
         })
-        .catch((error) => {
-          console.error("Error fetching cities:", error);
-        });
+        .catch((error) => console.error("Error fetching cities:", error));
     }
   }, [selectedCountry, selectedState]);
 
@@ -59,6 +53,7 @@ const Xstate = () => {
     <div className={styles["city-selector"]}>
       <h1>Select Location</h1>
       <div className={styles.dropdowns}>
+        {/* Country Dropdown */}
         <select
           value={selectedCountry}
           onChange={(e) => setSelectedCountry(e.target.value)}
@@ -73,6 +68,8 @@ const Xstate = () => {
             </option>
           ))}
         </select>
+
+        {/* State Dropdown */}
         <select
           value={selectedState}
           onChange={(e) => setSelectedState(e.target.value)}
@@ -88,6 +85,8 @@ const Xstate = () => {
             </option>
           ))}
         </select>
+
+        {/* City Dropdown */}
         <select
           value={selectedCity}
           onChange={(e) => setSelectedCity(e.target.value)}
@@ -104,6 +103,8 @@ const Xstate = () => {
           ))}
         </select>
       </div>
+
+      {/* Result */}
       {selectedCity && (
         <h2 className={styles.result}>
           You selected <span className={styles.highlight}>{selectedCity}</span>,
@@ -118,45 +119,4 @@ const Xstate = () => {
 };
 
 export default Xstate;
-// import React, { useEffect, useState } from "react";
-// import axios from "axios";
 
-// const Xstate = ()=>{
-//     const [countries,setCountries]=useState("")
-//    useEffect(() => {
-//     axios
-//        .get("https://crio-location-selector.onrender.com/countries")
-//        .then((response) => {
-//         setCountries(response.data);
-//       })
-//        .catch((error) => {
-//         console.error("Error fetching countries:", error);
-//       });
-//     }, []);
-//     return (
-//         <div>
-//             <h1>Select Location</h1>
-//             <select >
-            
-//                <option value="" disabled>
-//             Select Country
-//           </option>
-//           {countries.map((country) => (
-//             <option key={country} value={country}>
-//               {country}
-//             </option>
-//           ))}
-              
-//             </select>
-//             <select>
-//                 <option>Select State</option>
-//             </select>
-//             <select>
-//                <option>Select City</option>
-//             </select>   
-//        </div>
-//     )
-// }
-
-
-// export default Xstate;
